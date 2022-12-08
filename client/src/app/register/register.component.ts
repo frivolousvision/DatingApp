@@ -24,10 +24,11 @@ export class RegisterComponent implements OnInit {
         this.cancel();
       },
       error: (error) => {
-        for(const e in error.error.errors)
+        console.log(error)
+        error.forEach((e:string)=>
         {
-          this.toastr.error(`${e}: ${error.error.errors[e]}`)
-        }
+          this.toastr.error(e)
+        })
       },
     });
   }
