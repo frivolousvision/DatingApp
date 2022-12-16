@@ -10,7 +10,15 @@ namespace API.Extensions
     {
         public static string GetUserName(this ClaimsPrincipal user)
         {
+            return user.FindFirst(ClaimTypes.Name)?.Value;
+            // ClaimTypes.NameIdentifier equivalent to jwtRegisteredClaimNames.NameId
+            // ClaimTypes.Name equivalent to jwtRegisteredClaimNames.UniqueName
+        }
+         public static string GetUserId(this ClaimsPrincipal user)
+        {
             return user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            // ClaimTypes.NameIdentifier equivalent to jwtRegisteredClaimNames.NameId
+            // ClaimTypes.Name equivalent to jwtRegisteredClaimNames.UniqueName
         }
     }
 }
