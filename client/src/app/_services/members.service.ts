@@ -16,28 +16,34 @@ export class MembersService {
   members: Member[] = [];
   memberCache = new Map();
   user: User | undefined;
-  userParams: UserParams | undefined
+  userParams: UserParams | undefined;
 
-  constructor(private http: HttpClient, private accountService: AccountService) {
+  constructor(
+    private http: HttpClient,
+    private accountService: AccountService
+  ) {
     this.accountService.currentUser$.pipe(take(1)).subscribe({
       next: (user) => {
         if (user) {
+          console.log("user")
           this.userParams = new UserParams(user);
           this.user = user;
+        } else {
+          console.log("no")
         }
       },
     });
   }
-  getUserParams(){
+  getUserParams() {
     return this.userParams;
   }
-  setUserParams(params:UserParams){
-    this.userParams = params
+  setUserParams(params: UserParams) {
+    this.userParams = params;
   }
-  resetUserParams(){
-    if (this.user){
-      this.userParams = new UserParams(this.user)
-      return this.userParams
+  resetUserParams() {
+    if (this.user) {
+      this.userParams = new UserParams(this.user);
+      return this.userParams;
     }
     return;
   }
@@ -72,8 +78,8 @@ export class MembersService {
       .reduce((arr, elem) => arr.concat(elem.result), [])
       .find((member: Member) => member.userName === username);
 
-    if(member) return of(member);
-    
+    if (member) return of(member);
+
     return this.http.get<Member>(this.baseUrl + 'users/' + username);
   }
   updateMember(member: Member) {
@@ -90,6 +96,17 @@ export class MembersService {
   deletePhoto(photoId: number) {
     return this.http.delete(this.baseUrl + 'users/delete-photo/' + photoId);
   }
+  addLike(username: string) {
+    return this.http.post(this.baseUrl + 'likes/' + username, {});
+  }
+  getLikes(predicate: string, pageNumber:number, pageSize:number) {
+    let params  = this.getPaginationHeaders(pageNumber, pageSize);
+
+    params = params.append('predicate', predicate);
+
+    return this.getPaginatedResult<Member[]>(this.baseUrl + 'likes', params)
+  }
+
   private getPaginatedResult<T>(url: string, params: HttpParams) {
     const paginatedResult: PaginatedResult<T> = new PaginatedResult<T>();
     return this.http.get<T>(url, { observe: 'response', params }).pipe(
